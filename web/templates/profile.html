@@ -7,19 +7,16 @@
         <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
                 <i class="fas fa-user-circle fa-2x me-3"></i> <!-- Увеличенная иконка пользователя -->
-                <span>{{ user.username }}</span>
+                <span class="user-name" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editUserModal">{{ user.username }}</span>
             </div>
-            <div class="d-flex align-items-center">
-                <button class="btn btn-warning btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editUserModal">Изменить</button>
-                <button class="btn btn-primary btn-sm">Выйти</button>
-            </div>
+            <button class="btn btn-primary btn-sm">Выйти</button>
         </div>
     </div>
 
     <!-- Notifications Section -->
     <div class="card p-3 mb-3">
         <h5 class="mb-3">Уведомления</h5>
-        <div class="form-check form-switch form-switch-lg"> <!-- Добавлен класс для увеличения размера -->
+        <div class="form-check form-switch form-switch-lg"> <!-- Увеличенный размер переключателя -->
             <input class="form-check-input" type="checkbox" id="notifications">
             <label class="form-check-label" for="notifications">Уведомления в телеграм</label>
         </div>
@@ -52,22 +49,4 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editUserModalLabel">Редактировать профиль</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="mb-3">
-                        <label for="userName" class="form-label">Имя</label>
-                        <input type="text" class="form-control" id="userName" value="{{ user.full_name }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="userEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="userEmail" value="{{ user.email }}">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Сохранить изменения</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+                <button type="button
