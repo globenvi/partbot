@@ -96,7 +96,7 @@ def index_page():
         flash("Product added successfully!", category="success")
         return redirect(url_for('index_page'))
 
-    products = Product.query.all()
+    products = Products.query.all()
     return render_template('index.html', user=current_user, products=products)
 
 @app.route('/register', methods=['GET', 'POST'])
