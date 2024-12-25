@@ -20,9 +20,46 @@ login_manager.login_view = "login"
 with app.app_context():
     db.create_all()
 
+# Check if the database is empty or has no users
+def is_database_empty():
+    return not db.session.query(Users).first()
+
+@app.before_first_request
+def check_database():
+    if is_database_empty():
+        return redirect(url_for('install'))
+
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return Users.query.get(int(user_id))
+
+@app.route('/install', methods=['GET', 'POST'])
+def install():
+    if request.method == "POST":
+        # Create the first admin user
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        if not username or not email or not password:
+            flash("Все поля обязательны для заполнения!", "danger")
+            return redirect(url_for('install'))
+
+        existing_user = Users.query.filter_by(username=username).first()
+        if existing_user:
+            flash("Пользователь с таким именем уже зарегистрирован!", "danger")
+            return redirect(url_for('install'))
+
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+
+        admin_user = Users(username=username, email=email, password=hashed_password, role='admin')
+        db.session.add(admin_user)
+        db.session.commit()
+
+        flash("База данных установлена и первый администратор создан!", "success")
+        return redirect(url_for('login'))
+
+    return render_template('install.html')
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -74,27 +111,25 @@ def register():
             flash("Все поля обязательны для заполнения!", "danger")
             return redirect(url_for('register'))
 
-        existing_user = Users.query.filter_by(username=username).first()  # Changed 'User' to 'Users'
+        existing_user = Users.query.filter_by(username=username).first()
         if existing_user:
             flash("Пользователь с таким именем уже зарегистрирован!", "danger")
             return redirect(url_for('register'))
 
-        existing_email = Users.query.filter_by(email=email).first()  # Changed 'User' to 'Users'
+        existing_email = Users.query.filter_by(email=email).first()
         if existing_email:
             flash("Пользователь с таким email уже зарегистрирован!", "danger")
             return redirect(url_for('register'))
 
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
-        user = Users(username=username, email=email, password=hashed_password)  # Changed 'User' to 'Users'
+        user = Users(username=username, email=email, password=hashed_password)
         db.session.add(user)
         db.session.commit()
         flash("Вы успешно зарегистрировались!", "success")
         return redirect(url_for('login'))
 
     return render_template('register.html')
-
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -112,23 +147,16 @@ def login():
 
     return render_template('login.html')
 
-
 @app.route('/profile')
 @login_required
 def profile():
     return render_template('profile.html', user=current_user)
 
-
 @app.route('/logout')
-@login_required  # Only authenticated users can access this route  # Changed 'User' to 'Users'
-@app.route('/logout', methods=['GET'])  # Changed 'GET' to 'POST' for form submission  # Changed 'User' to 'Users'
-@app.route('/logout/<username>', methods=['POST'])  # Changed 'GET' to 'POST' for form submission  # Changed 'User' to 'Users'
 def logout():
     logout_user()
     flash('Logged out successfully!', "success")
     return redirect(url_for('login'))
 
-
 if __name__ == '__main__':
-    app.run(host=WEBHOOK_LISTEN,
-        debug=False)
+    app.run(host=WEBHOOK_LISTEN, debug=False)
