@@ -22,16 +22,6 @@
         </div>
     </div>
 
-    <div class="card p-3 mb-3">
-        <h5 class="mb-3">Привязка Telegram</h5>
-        <div class="form-check form-switch form-switch-lg">
-            <form method="POST">
-                <input type="text" class="form-control" id="userTelegramId" name="user_telegram_id" value="{{ user.telegram_id if user.telegram_id else '' }}" placeholder="TelegramID (732917321)">
-                <button class="btn btn-sm btn-primary my-2" type="submit">Сохранить</button>
-            </form>
-        </div>
-    </div>
-
     <!-- About App Section -->
     <div class="card p-3 mb-3">
         <h5 class="mb-3">О приложении</h5>
@@ -75,8 +65,8 @@
                         <input type="tel" class="form-control" id="userPhone" name="user_phone" value="{{ user.phone if user.phone else '' }}" placeholder="10 значный формат! 923 123 11 22">
                     </div>
                     <div class="mb-3">
-                        <label for="userTelegram" class="form-label">Ссылка на Telegram</label>
-                        <input type="text" class="form-control" id="userTelegram" name="user_telegram" value="{{ user.telegram_url if user.telegram_url else '' }}" placeholder="https://t.me/username">
+                        <label for="userTelegram" class="form-label">TelegramID</label>
+                        <input type="text" class="form-control" id="userTelegramId" name="user_telegram_id" value="{{ user.telegram_id if user.telegram_id else '' }}" placeholder="TelegramID (732917321)">
                     </div>
                     <button type="submit" class="btn btn-primary w-100" name="save_changes">Сохранить изменения</button>
                 </form>

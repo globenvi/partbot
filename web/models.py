@@ -11,7 +11,6 @@ class Users(db.Model, UserMixin):
     role = db.Column(db.String(20), nullable=False, default='user')
     is_active = db.Column(db.Boolean, default=True)
     phone = db.Column(db.String(10), nullable=True)
-    telegram_url = db.Column(db.String(256), nullable=True)
     telegram_id = db.Column(db.String(256), nullable=True, unique=True)
     telegram_notifications = db.Column(db.Boolean(), default=True)
 
