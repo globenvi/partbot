@@ -4,8 +4,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import User, db, Product
 import os
 
-# Set up webhook settings
-WEBHOOK_PORT =5000
 WEBHOOK_LISTEN = "0.0.0.0"
 
 app = Flask(__name__)
@@ -128,6 +126,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(host=WEBHOOK_LISTEN,
-        port=WEBHOOK_PORT,
-        debug=False)
+    app.run(host=WEBHOOK_LISTEN, debug=False)
