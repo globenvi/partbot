@@ -8,7 +8,7 @@ WEBHOOK_HOST = "31.31.207.202"
 WEBHOOK_PORT = 80
 WEBHOOK_LISTEN = "0.0.0.0"
 
-context = ('crt.crt', 'key.key')
+# context = ('crt.crt', 'key.key')
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -132,5 +132,4 @@ def logout():
 if __name__ == '__main__':
     app.run(host=WEBHOOK_LISTEN,
         port=WEBHOOK_PORT,
-        debug=False,
-        ssl_context=context)
+        debug=False)
