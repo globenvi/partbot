@@ -156,6 +156,7 @@ def profile():
         email = request.form.get('user_email')
         phone = request.form.get('user_phone')
         telegram_id = request.form.get('user_telegram_id')
+        telegram_notifications = request.form.get('telegram_notifications')
 
         # Обновление данных пользователя
         if username and email and phone:
@@ -163,6 +164,7 @@ def profile():
             user.email = email
             user.phone = phone
             user.telegram_id = telegram_id
+            telegram_notifications = telegram_notifications
 
             try:
                 db.session.commit()
