@@ -49,7 +49,7 @@ async def is_admin(user_id: int) -> bool:
 
 @router.message(Command('dev'))
 async def dev(message: Message):
-    web_app_url = 'https://cwim-team.ru'  # Укажите URL вашего Web App
+    web_app_url = 'https://clck.ru/3FRyNs'  # Укажите URL вашего Web App
 
     # Создаем клавиатуру с кнопкой для Web App
     keyboard = InlineKeyboardMarkup(
