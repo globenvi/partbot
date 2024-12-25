@@ -12,6 +12,7 @@ STATIC_DIR="$APP_DIR/static"
 SOCK_FILE="$APP_DIR/flask_app.sock"
 EMAIL="admin@$DOMAIN"
 CERT_PATH="/etc/letsencrypt/live/$DOMAIN"
+AVAILABLE_PORT=""
 
 # Проверка прав root
 if [[ $EUID -ne 0 ]]; then
@@ -37,11 +38,18 @@ done
 for port in 80 443; do
     if ! ss -tuln | grep -q ":$port"; then
         echo "Порт $port свободен."
+        AVAILABLE_PORT=$port
+        break
     else
-        echo "Внимание: порт $port занят. Пытаюсь определить конфликтующий сервис..."
-        lsof -i :$port || echo "Не удалось определить сервис, занимающий порт $port."
+        echo "Порт $port занят."
     fi
 done
+
+# Если порты 80 и 443 заняты, используем порт 8080
+if [[ -z "$AVAILABLE_PORT" ]]; then
+    echo "Порты 80 и 443 заняты, переключаемся на порт 8080."
+    AVAILABLE_PORT=8080
+fi
 
 # Проверка доступности домена
 if ! curl -s --head "http://$DOMAIN" | grep "200 OK"; then
@@ -66,7 +74,7 @@ server {
         alias $STATIC_DIR/;
     }
 
-    listen 80;
+    listen $AVAILABLE_PORT;
 }
 EOF
 
