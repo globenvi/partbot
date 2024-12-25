@@ -20,14 +20,13 @@ login_manager.login_view = "login"
 with app.app_context():
     db.create_all()
 
-# Check if the database is empty or has no users
-def is_database_empty():
-    return not db.session.query(Users).first()
-
-@app.before_first_request
 def check_database():
     if is_database_empty():
         return redirect(url_for('install'))
+
+# Check if the database is empty or has no users
+def is_database_empty():
+    return not db.session.query(Users).first()
 
 @login_manager.user_loader
 def load_user(user_id):
