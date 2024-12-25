@@ -5,6 +5,7 @@ import requests
 import time
 import json
 from zipfile import ZipFile
+import threading
 
 # Конфигурация
 GITHUB_REPO = "globenvi/partbot"  # Репозиторий
@@ -148,43 +149,51 @@ def manual_update():
     else:
         print("Обновлений нет.")
 
+def check_for_updates():
+    """Проверка обновлений в фоне."""
+    try:
+        latest_commit = get_latest_commit(GITHUB_REPO, BRANCH)
+        if os.path.exists(LAST_COMMIT_FILE):
+            with open(LAST_COMMIT_FILE, "r") as f:
+                last_commit = f.read().strip()
+        else:
+            last_commit = None
+
+        if latest_commit != last_commit:
+            print("Обновления доступны...")
+            download_repository(GITHUB_REPO, BRANCH)
+            extract_and_replace("repo.zip", ".")
+            install_requirements()
+            with open(LAST_COMMIT_FILE, "w") as f:
+                f.write(latest_commit)
+            return True
+        else:
+            print("Обновлений нет.")
+            return False
+    except Exception as e:
+        print(f"Ошибка при проверке обновлений: {e}")
+        return False
+
 def main():
     """Основная логика."""
     create_config()
     create_env()
     main_process = None
-    is_first_run = not os.path.exists(LAST_COMMIT_FILE)
+
+    # Запуск основного скрипта
+    main_process = run_main_script()
 
     while True:
-        try:
-            with open(CONFIG_FILE) as f:
-                config = json.load(f)
-            update_mode = config.get("update_mode", "manual")
+        # Проверка обновлений в фоне
+        update_available = check_for_updates()
 
-            latest_commit = get_latest_commit(GITHUB_REPO, BRANCH)
-            if os.path.exists(LAST_COMMIT_FILE):
-                with open(LAST_COMMIT_FILE, "r") as f:
-                    last_commit = f.read().strip()
-            else:
-                last_commit = None
+        if update_available:
+            # Завершаем основной процесс
+            terminate_process(main_process)
+            # Перезапускаем основной скрипт
+            main_process = run_main_script()
 
-            if is_first_run or latest_commit != last_commit:
-                if update_mode == "auto":
-                    download_repository(GITHUB_REPO, BRANCH)
-                    extract_and_replace("repo.zip", ".")
-                    install_requirements()
-                    with open(LAST_COMMIT_FILE, "w") as f:
-                        f.write(latest_commit)
-                    terminate_process(main_process)
-                    main_process = run_main_script()
-                    is_first_run = False
-                else:
-                    print("Обновления доступны. Запустите команду для ручного обновления.")
-            else:
-                print("Обновлений не найдено.")
-        except Exception as e:
-            print(f"Ошибка: {e}")
-
+        # Пауза перед следующей проверкой
         time.sleep(CHECK_INTERVAL)
 
 if __name__ == "__main__":
