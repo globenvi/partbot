@@ -4,6 +4,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import User, db, Product
 import os
 
+WEBHOOK_HOST = "31.31.207.202"
+WEBHOOK_POST = "80"
+WEBHOOK_LISTEN = "0.0.0.0"
+
+context = ('crt.crt', 'key.key')
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SECRET_KEY'] = "kljdklsahiopduy1y298e319hdskajh"
@@ -125,4 +131,7 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0")
+    app.run(host=WEBHOOK_LISTEN,
+        port=WEBHOOK_PORT,
+        debug=False,
+        ssl_context=context)
