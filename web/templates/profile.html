@@ -21,33 +21,29 @@
 
     <!-- Notifications Section -->
     <div class="card p-3 mb-3">
-        <h5 class="mb-3">Телеграм уведомления</h5>
+        <h5 class="mb-3">Уведомления</h5>
         <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="notifications" {% if user.notifications_enabled %}checked{% endif %}>
-            <label class="form-check-label" for="notifications">Принимать уведомления</label>
-        </div>
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="allScNotifications" {% if user.all_sc_notifications %}checked{% endif %}>
-            <label class="form-check-label" for="allScNotifications">Принимать от всех СЦ</label>
+            <input class="form-check-input" type="checkbox" id="notifications">
+            <label class="form-check-label" for="notifications">Уведомления в телеграм</label>
         </div>
     </div>
 
     <!-- About App Section -->
     <div class="card p-3 mb-3">
         <h5 class="mb-3">О приложении</h5>
-        <p class="mb-1">Версия приложения: {{ app.version }}</p>
-        <p>Версия сборки: {{ app.build_version }}</p>
+        <p class="mb-1">Версия приложения: 0.11 <div class="bage">DEV</div></p>
+        <p>Версия сборки: #</p>
         <button class="btn btn-outline-primary w-100">Проверить обновления</button>
     </div>
 
     <!-- Links Section -->
     <div class="card p-3 mb-3">
-        <a href="{{ app.page_url }}" class="btn btn-link text-decoration-none d-flex align-items-center">
+        <a href="#" class="btn btn-link text-decoration-none d-flex align-items-center">
             <i class="fas fa-external-link-alt me-2"></i> Открыть страницу приложения
         </a>
     </div>
     <div class="card p-3">
-        <a href="{{ app.help_url }}" class="btn btn-link text-decoration-none d-flex align-items-center">
+        <a href="#" class="btn btn-link text-decoration-none d-flex align-items-center">
             <i class="fas fa-question-circle me-2"></i> Помощь
         </a>
     </div>
