@@ -13,6 +13,7 @@ class Users(db.Model, UserMixin):
     phone = db.Column(db.String(10), nullable=True)
     telegram_url = db.Column(db.String(256), nullable=True)
     telegram_id = db.Column(db.String(256), nullable=True, unique=True)
+    telegram_notifications = db.Column(db.Boolean(), default=True)
 
 class Products(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -146,9 +146,35 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    if request.method == "POST":
+        user = {
+            'username': request.form.get('user_name'),
+            'email': request.form.get('user_email'),
+            'phone': request.form.get('user_phone'),
+            'telegram_url': request.form.get('user_telegram'),
+            'telegram_id': request.form.get('user_telegram_id'),
+            'telegram_notifications': request.form.get('telegram_notifications')
+        }
+        # Update user information in the database
+        db.session.query(Users).filter_by(id=current_user.id).update(user)
+        db.session.commit()
+        flash("Изменения сохранены!", "success")
+        return redirect(url_for('profile'))
+    else:
+        # Fetch user information from the database
+        user = Users.query.filter_by(id=current_user.id).first()
+        if not user:
+            flash("Профиль не найден!", "danger")
+            return redirect(url_for('login'))  # Redirect to login page if user not found in the database
+        else:
+            user.telegram_notifications = bool(user.telegram_notifications)  # Convert string to boolean value before rendering the template
+            user.telegram_url = f"https://t.me/{user.telegram_id}" if user.telegram_id else None  # Format Telegram URL if it exists
+            user.telegram_id = None  # Remove unnecessary Telegram ID field before rendering the template
+            return render_template('profile.html', user=user)
+
     return render_template('profile.html', user=current_user)
 
 @app.route('/logout')
