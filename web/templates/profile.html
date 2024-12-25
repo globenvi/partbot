@@ -26,8 +26,8 @@
         <h5 class="mb-3">Привязка Telegram</h5>
         <div class="form-check form-switch form-switch-lg">
             <form method="POST">
-                <input type="input" class="form-control" id="userTelegramId" name="user_telegram_id" value="{{ user.telegram_id }}" placeholder="TelegramID (732917321)">
-                <button class="btn btn-sm btn-primary" type="submit">Сохранить</button>
+                <input type="text" class="form-control" id="userTelegramId" name="user_telegram_id" value="{{ user.telegram_id if user.telegram_id else '' }}" placeholder="TelegramID (732917321)">
+                <button class="btn btn-sm btn-primary my-2" type="submit">Сохранить</button>
             </form>
         </div>
     </div>
@@ -72,15 +72,14 @@
                     </div>
                     <div class="mb-3">
                         <label for="userPhone" class="form-label">Номер телефона</label>
-                        <input type="tel" class="form-control" id="userPhone" name="user_phone" value="{{ user.phone }}" placeholder="10 значный формат! 923 123 11 22">
+                        <input type="tel" class="form-control" id="userPhone" name="user_phone" value="{{ user.phone if user.phone else '' }}" placeholder="10 значный формат! 923 123 11 22">
                     </div>
                     <div class="mb-3">
                         <label for="userTelegram" class="form-label">Ссылка на Telegram</label>
-                        <input type="url" class="form-control" id="userTelegram" name="user_telegram" value="{{ user.telegram_url }}" placeholder="https://t.me/username">
+                        <input type="text" class="form-control" id="userTelegram" name="user_telegram" value="{{ user.telegram_url if user.telegram_url else '' }}" placeholder="https://t.me/username">
                     </div>
                     <button type="submit" class="btn btn-primary w-100" name="save_changes">Сохранить изменения</button>
                 </form>
-                
             </div>
         </div>
     </div>

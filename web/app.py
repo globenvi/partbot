@@ -150,32 +150,37 @@ def login():
 @login_required
 def profile():
     if request.method == "POST":
+        # Собираем данные из формы
         user = {
-            'username': request.form.get('user_name'),
-            'email': request.form.get('user_email'),
-            'phone': request.form.get('user_phone'),
-            'telegram_url': request.form.get('user_telegram'),
-            'telegram_id': request.form.get('user_telegram_id'),
-            'telegram_notifications': request.form.get('telegram_notifications')
+            'username': request.form.get('user_name', current_user.username),
+            'email': request.form.get('user_email', current_user.email),
+            'phone': request.form.get('user_phone', current_user.phone),
+            'telegram_url': request.form.get('user_telegram', current_user.telegram_url),
+            'telegram_id': request.form.get('user_telegram_id', current_user.telegram_id),
+            'telegram_notifications': request.form.get('telegram_notifications', current_user.telegram_notifications) == 'on'
         }
-        # Update user information in the database
+
+        # Обновляем данные в базе
         db.session.query(Users).filter_by(id=current_user.id).update(user)
         db.session.commit()
         flash("Изменения сохранены!", "success")
         return redirect(url_for('profile'))
+
     else:
-        # Fetch user information from the database
+        # Получаем данные пользователя из базы
         user = Users.query.filter_by(id=current_user.id).first()
+
         if not user:
             flash("Профиль не найден!", "danger")
-            return redirect(url_for('login'))  # Redirect to login page if user not found in the database
-        else:
-            user.telegram_notifications = bool(user.telegram_notifications)  # Convert string to boolean value before rendering the template
-            user.telegram_url = f"https://t.me/{user.telegram_id}" if user.telegram_id else None  # Format Telegram URL if it exists
-            user.telegram_id = None  # Remove unnecessary Telegram ID field before rendering the template
-            return render_template('profile.html', user=user)
+            return redirect(url_for('login'))  # Перенаправляем на страницу входа, если пользователь не найден в базе
 
-    return render_template('profile.html', user=current_user)
+        # Обрабатываем возможные None значения
+        user.telegram_url = f"https://t.me/{user.telegram_id}" if user.telegram_id else None  # Форматируем ссылку на Telegram, если ID существует
+        user.telegram_notifications = bool(user.telegram_notifications)  # Преобразуем строку в булево значение
+        user.telegram_id = user.telegram_id or None  # Убираем ненужное значение ID, если оно отсутствует
+
+        return render_template('profile.html', user=user)
+
 
 @app.route('/logout')
 def logout():
