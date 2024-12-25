@@ -7,9 +7,9 @@
 
       // Показываем спиннер и скрываем текст
       spinner.style.display = "inline-block";
-      if (buttonText) {
-        buttonText.textContent = "Загрузка...";
-      }
+    //   if (buttonText) {
+    //     buttonText.textContent = "Загрузка...";
+    //   }
 
       // Блокируем кнопку
       button.disabled = true;
