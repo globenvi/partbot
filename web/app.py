@@ -149,28 +149,30 @@ def login():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    user = Users.query.filter_by(current_user.username)
+    user = Users.query.filter_by(username=current_user.username).first()
+
     if request.method == "POST":
         username = request.form.get('username')
         email = request.form.get('user_email')
         phone = request.form.get('user_phone')
         telegram_id = request.form.get('user_telegram_id')
 
-        user_data = User(username=username, email=email, phone=phone, telegram_id=telegram_id)
-        db.session.query(Users).filter_by(username=current_user.username).update(user_data)
+        # Проверка на пустые поля
+        if not username or not email or not phone:
+            flash("Все поля обязательны для заполнения!", "danger")
+            return redirect(url_for('profile'))
+
+        # Обновление данных пользователя
+        user.username = username
+        user.email = email
+        user.phone = phone
+        user.telegram_id = telegram_id
+        
         db.session.commit()
         flash("Данные успешно изменены!", "success")
         return redirect(url_for('profile'))
-        # TODO: Add validation for email and phone fields, check if the updated email or phone is already taken by another user, etc.
-    else:
-        user = Users.query.filter_by(username=current_user.username).first()
-        if user.telegram_id:
-            user.telegram_id = f"https://t.me/{user.telegram_id}"
-        else:
-            user.telegram_id = "Не указано"
 
-
-        return render_template('profile.html', user=user)
+    return render_template('profile.html', user=user)
 
 
 @app.route('/logout')
