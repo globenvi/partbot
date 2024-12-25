@@ -25,11 +25,11 @@ fi
 # Создаём конфигурацию Nginx
 sudo bash -c "cat > $NGINX_CONF" <<EOL
 server {
-    listen 80;
+    listen 5000;
     server_name cwim-team.ru www.cwim-team.ru;
 
     location / {
-        proxy_pass http://127.0.0.1:80; # Локальный Flask-сервер
+        proxy_pass http://127.0.0.1:5000; # Локальный Flask-сервер
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -48,7 +48,7 @@ server {
     ssl_certificate_key $SSL_DIR/temporary.key;
 
     location / {
-        proxy_pass http://127.0.0.1:80;
+        proxy_pass http://127.0.0.1:5000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
