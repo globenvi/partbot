@@ -101,7 +101,7 @@ def login():
     if request.method == "POST":
         username = request.form.get('username')
         password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
+        user = Users.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
             login_user(user)
@@ -120,6 +120,9 @@ def profile():
 
 
 @app.route('/logout')
+@login_required  # Only authenticated users can access this route  # Changed 'User' to 'Users'
+@app.route('/logout', methods=['GET'])  # Changed 'GET' to 'POST' for form submission  # Changed 'User' to 'Users'
+@app.route('/logout/<username>', methods=['POST'])  # Changed 'GET' to 'POST' for form submission  # Changed 'User' to 'Users'
 def logout():
     logout_user()
     flash('Logged out successfully!', "success")
