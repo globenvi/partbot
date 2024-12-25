@@ -7,20 +7,16 @@ import os
 WEBHOOK_LISTEN = "0.0.0.0"
 
 app = Flask(__name__)
-
-# Строка подключения к базе данных MySQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://w92370g2_cwim:Lolkalol1488@w92370g2.beget.tech/w92370g2_cwim'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cwim_db.db'
 app.config['SECRET_KEY'] = "kljdklsahiopduy1y298e319hdskajh"
 app.config['UPLOAD_FOLDER'] = 'static/product_images'  # Define upload folder for product images
 
-# Инициализация базы данных
 db.init_app(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
-# Создание всех таблиц при запуске приложения, если они еще не существуют
+# Create all tables on startup if they do not exist
 with app.app_context():
     db.create_all()
 
@@ -38,26 +34,26 @@ def index_page():
         product_price = request.form.get('product_price')
         product_category = request.form.get('product_category')
         product_tags = request.form.get('product_tags')
-        product_images = request.files.getlist('product_photos')  # Список загруженных изображений
+        product_images = request.files.getlist('product_photos')  # List of uploaded images
 
-        # Сохранение продукта в базу данных
+        # Save product to the database
         image_filenames = []
         for image in product_images:
             if image:
                 image_filename = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
                 image.save(image_filename)
-                image_filenames.append(image.filename)  # Добавляем имя файла изображения в список
+                image_filenames.append(image.filename)  # Add the image filename to the list
 
         new_product = Product(
             name=product_name,
             description=product_description,
             price=float(product_price),
             category=product_category,
-            tags=product_tags,  # Теги можно хранить как строку, разделенную запятыми
-            images=",".join(image_filenames)  # Список имен файлов изображений
+            tags=product_tags,  # Tags can be stored as a comma-separated string
+            images=",".join(image_filenames)  # List of image filenames
         )
 
-
+        # Add product to the session and commit to the database
         db.session.add(new_product)
         db.session.commit()
 
@@ -130,4 +126,5 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(host=WEBHOOK_LISTEN, debug=False)
+    app.run(host=WEBHOOK_LISTEN,
+        debug=False)
