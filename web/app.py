@@ -57,7 +57,7 @@ def index_page():
             images=",".join(image_filenames)  # Список имен файлов изображений
         )
 
-        # Добавление продукта в сессию и сохранение в базу данных
+
         db.session.add(new_product)
         db.session.commit()
 
