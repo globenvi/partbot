@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Exit on errors
+# Завершение выполнения при ошибках
 set -e
 
-# Variables
+# Переменные
 DOMAIN="cwim-team.ru"
 NGINX_CONFIG="/etc/nginx/sites-available/$DOMAIN"
 NGINX_LINK="/etc/nginx/sites-enabled/$DOMAIN"
@@ -13,36 +13,43 @@ SOCK_FILE="$APP_DIR/flask_app.sock"
 EMAIL="admin@$DOMAIN"
 CERT_PATH="/etc/letsencrypt/live/$DOMAIN"
 
-# Check for sudo/root privileges
+# Проверка прав root
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
+   echo "Этот скрипт должен быть запущен с правами root" 
    exit 1
 fi
 
-# Update system
+# Обновление системы
 apt update && apt upgrade -y
 
-# Install dependencies if not present
-dependencies=(nginx certbot python3-certbot-nginx python3 python3-venv python3-pip)
+# Установка зависимостей, если их нет
+dependencies=(nginx certbot python3-certbot-nginx python3 python3-venv python3-pip curl)
 for package in "${dependencies[@]}"; do
     if ! dpkg -l | grep -qw "$package"; then
-        echo "Installing $package..."
+        echo "Устанавливаем $package..."
         apt install -y "$package"
     else
-        echo "$package is already installed."
+        echo "$package уже установлен."
     fi
 done
 
-# Check for open ports 80 and 443
+# Проверка портов 80 и 443
 for port in 80 443; do
     if ! ss -tuln | grep -q ":$port"; then
-        echo "Port $port is free."
+        echo "Порт $port свободен."
     else
-        echo "Warning: Port $port is in use. Ensure no conflicting services are running."
+        echo "Внимание: порт $port занят. Пытаюсь определить конфликтующий сервис..."
+        lsof -i :$port || echo "Не удалось определить сервис, занимающий порт $port."
     fi
 done
 
-# Create Nginx configuration file
+# Проверка доступности домена
+if ! curl -s --head "http://$DOMAIN" | grep "200 OK"; then
+    echo "Домен $DOMAIN недоступен. Проверьте настройки DNS и правила брандмауэра."
+    exit 1
+fi
+
+# Создание конфигурационного файла Nginx
 cat > "$NGINX_CONFIG" <<EOF
 server {
     server_name $DOMAIN www.$DOMAIN;
@@ -63,29 +70,31 @@ server {
 }
 EOF
 
-# Enable Nginx site and restart Nginx
+# Включение сайта в Nginx и перезапуск
 ln -sf "$NGINX_CONFIG" "$NGINX_LINK"
 nginx -t || {
-    echo "Nginx configuration test failed. Fix the issues and re-run the script."
+    echo "Тест конфигурации Nginx завершился ошибкой. Исправьте ошибки и перезапустите скрипт."
     exit 1
 }
 systemctl restart nginx || {
-    echo "Restarting Nginx failed. Check the status with: systemctl status nginx"
+    echo "Не удалось перезапустить Nginx. Проверьте статус с помощью: systemctl status nginx"
     exit 1
 }
 
-# Check for existing SSL certificates
+# Проверка наличия SSL-сертификатов
 if [ -d "$CERT_PATH" ]; then
-    echo "SSL certificates already exist for $DOMAIN. Skipping Certbot."
+    echo "SSL-сертификаты для $DOMAIN уже существуют. Пропускаем Certbot."
 else
-    echo "SSL certificates not found. Requesting certificates from Let's Encrypt..."
+    echo "SSL-сертификаты не найдены. Запрашиваю сертификаты у Let's Encrypt..."
     certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m $EMAIL || {
-        echo "Certbot failed. Check DNS settings or firewall rules."
-        echo "Ensure the domain points to this server and ports 80/443 are open."
+        echo "Certbot завершился ошибкой. Возможные причины:"
+        echo "1. Настройки DNS: Убедитесь, что $DOMAIN указывает на IP вашего сервера."
+        echo "2. Брандмауэр: Откройте порты 80 и 443."
+        echo "3. Логи: /var/log/letsencrypt/letsencrypt.log"
         exit 1
     }
 fi
 
-# Final message
-echo "Nginx configured for $DOMAIN with SSL."
-echo "If there are issues, check: /var/log/nginx/error.log and /var/log/letsencrypt/letsencrypt.log"
+# Финальное сообщение
+echo "Nginx настроен для $DOMAIN с SSL."
+echo "Если возникли проблемы, проверьте: /var/log/nginx/error.log и /var/log/letsencrypt/letsencrypt.log"
