@@ -8,8 +8,14 @@ WEBHOOK_LISTEN = "0.0.0.0"
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cwim_db.db'
-app.config['SECRET_KEY'] = "kljdklsahiopduy1y298e319hdskajh"
+app.config['SECRET_KEY'] = "kljdklsahiopduy1y298e319hdskajh"  # Убедитесь, что ключ секретный
 app.config['UPLOAD_FOLDER'] = 'static/product_images'  # Define upload folder for product images
+
+# Настройки сессий для улучшенной безопасности
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Запрещает доступ к cookies через JS
+app.config['SESSION_COOKIE_SECURE'] = True  # Требует HTTPS для передачи cookies
+app.config['SESSION_PERMANENT'] = False  # Сессии не являются постоянными по умолчанию
+app.config['SESSION_COOKIE_NAME'] = 'cwim-dasjhkjqw1k23o0a'  # Уникальное имя cookies для вашего приложения
 
 db.init_app(app)
 
