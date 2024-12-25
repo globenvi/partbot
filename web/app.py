@@ -152,24 +152,25 @@ def profile():
     user = Users.query.filter_by(username=current_user.username).first()
 
     if request.method == "POST":
-        username = request.form.get('username')
+        username = request.form.get('user_name')
         email = request.form.get('user_email')
         phone = request.form.get('user_phone')
         telegram_id = request.form.get('user_telegram_id')
 
-        # Проверка на пустые поля
-        if not username or not email or not phone:
-            flash("Все поля обязательны для заполнения!", "danger")
-            return redirect(url_for('profile'))
-
         # Обновление данных пользователя
-        user.username = username
-        user.email = email
-        user.phone = phone
-        user.telegram_id = telegram_id
-        
-        db.session.commit()
-        flash("Данные успешно изменены!", "success")
+        if username and email and phone:
+            user.username = username
+            user.email = email
+            user.phone = phone
+            user.telegram_id = telegram_id
+
+            try:
+                db.session.commit()
+                flash("Данные успешно изменены!", "success")
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Ошибка при обновлении данных: {e}", "danger")
+
         return redirect(url_for('profile'))
 
     return render_template('profile.html', user=user)
