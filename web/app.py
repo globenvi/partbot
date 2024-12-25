@@ -4,11 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import User, db, Product
 import os
 
-# WEBHOOK_HOST = "31.31.207.202"
+# Set up webhook settings
 WEBHOOK_PORT =80
 WEBHOOK_LISTEN = "0.0.0.0"
-
-# context = ('crt.crt', 'key.key')
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
