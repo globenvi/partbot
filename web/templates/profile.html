@@ -7,7 +7,7 @@
         <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
                 <i class="fas fa-user-circle fa-2x me-3"></i>
-                <span class="user-name" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editUserModal">{{ user.full_name }}</span>
+                <span class="user-name" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editUserModal">{{ user.username }}</span>
             </div>
             <button class="btn btn-primary btn-sm" name="logout">Выйти</button>
         </div>
@@ -55,7 +55,7 @@
                 <form>
                     <div class="mb-3">
                         <label for="userName" class="form-label">Имя</label>
-                        <input type="text" class="form-control" id="userName" name="user_name" value="{{ user.full_name }}">
+                        <input type="text" class="form-control" id="userName" name="user_name" value="{{ user.username }}">
                     </div>
                     <div class="mb-3">
                         <label for="userEmail" class="form-label">Email</label>
