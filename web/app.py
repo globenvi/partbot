@@ -80,7 +80,7 @@ def index_page():
                 image.save(image_filename)
                 image_filenames.append(image.filename)  # Add the image filename to the list
 
-        new_product = Product(
+        new_product = Products(
             name=product_name,
             description=product_description,
             price=float(product_price),
