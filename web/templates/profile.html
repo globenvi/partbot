@@ -26,8 +26,8 @@
         <h5 class="mb-3">Привязка Telegram</h5>
         <div class="form-check form-switch form-switch-lg">
             <form method="POST">
-                <input type="url" class="form-control" id="userTelegram" name="user_telegram" value="{{ user.telegram_url }}" placeholder="https://t.me/username">
-                <label class="form-check-label" for="notifications">Уведомления в телеграм</label>
+                <input type="input" class="form-control" id="userTelegramId" name="user_telegram_id" value="{{ user.telegram_id }}" placeholder="TelegramID (732917321)">
+                <input class="form-check-input" type="submit" value="Привязать" name="bind_telegram_id">
             </form>
         </div>
     </div>
@@ -72,7 +72,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="userPhone" class="form-label">Номер телефона</label>
-                        <input type="tel" class="form-control" id="userPhone" name="user_phone" value="+7 {{ user.phone }}" placeholder="+7 (___) ___-__-__">
+                        <input type="tel" class="form-control" id="userPhone" name="user_phone" value="{{ user.phone }}" placeholder="10 значный формат! 923 123 11 22">
                     </div>
                     <div class="mb-3">
                         <label for="userTelegram" class="form-label">Ссылка на Telegram</label>
