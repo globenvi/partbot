@@ -10,6 +10,9 @@ class Users(db.Model, UserMixin):
     password = db.Column(db.String(120), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')
     is_active = db.Column(db.Boolean, default=True)
+    phone = db.Column(db.String(10), nullable=True)
+    telegram_url = db.Column(db.String(256), nullable=True)
+    telegram_id = db.Column(db.String(256), nullable=True, unique=True)
 
 class Products(db.Model):
     id = db.Column(db.Integer, primary_key=True)
