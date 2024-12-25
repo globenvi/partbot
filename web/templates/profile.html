@@ -6,18 +6,18 @@
     <div class="card p-3 mb-3">
         <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
-                <i class="fas fa-user-circle fa-2x me-3"></i> <!-- Увеличенная иконка пользователя -->
-                <span class="user-name" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editUserModal">{{ user.username }}</span>
+                <i class="fas fa-user-circle fa-2x me-3"></i>
+                <span class="user-name" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#editUserModal">{{ user.full_name }}</span>
             </div>
-            <button class="btn btn-primary btn-sm">Выйти</button>
+            <button class="btn btn-primary btn-sm" name="logout">Выйти</button>
         </div>
     </div>
 
     <!-- Notifications Section -->
     <div class="card p-3 mb-3">
         <h5 class="mb-3">Уведомления</h5>
-        <div class="form-check form-switch"> <!-- Увеличенный размер переключателя -->
-            <input class="form-check-input" type="checkbox" id="notifications">
+        <div class="form-check form-switch form-switch-lg">
+            <input class="form-check-input" type="checkbox" id="notifications" name="telegram_notifications">
             <label class="form-check-label" for="notifications">Уведомления в телеграм</label>
         </div>
     </div>
@@ -27,17 +27,17 @@
         <h5 class="mb-3">О приложении</h5>
         <p class="mb-1">Версия приложения: <span class="badge bg-danger">DEV</span></p>
         <p>Версия сборки: #</p>
-        <button class="btn btn-outline-primary w-100">Проверить обновления</button>
+        <button class="btn btn-outline-primary w-100" name="check_updates">Проверить обновления</button>
     </div>
 
     <!-- Links Section -->
     <div class="card p-3 mb-3">
-        <a href="#" class="btn btn-link text-decoration-none d-flex align-items-center">
+        <a href="#" class="btn btn-link text-decoration-none d-flex align-items-center" name="open_app_page">
             <i class="fas fa-external-link-alt me-2"></i> Открыть страницу приложения
         </a>
     </div>
     <div class="card p-3">
-        <a href="#" class="btn btn-link text-decoration-none d-flex align-items-center">
+        <a href="#" class="btn btn-link text-decoration-none d-flex align-items-center" name="help">
             <i class="fas fa-question-circle me-2"></i> Помощь
         </a>
     </div>
@@ -49,4 +49,22 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editUserModalLabel">Редактировать профиль</h5>
-                <button type="button
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Имя</label>
+                        <input type="text" class="form-control" id="userName" name="user_name" value="{{ user.full_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="userEmail" name="user_email" value="{{ user.email }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" name="save_changes">Сохранить изменения</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
