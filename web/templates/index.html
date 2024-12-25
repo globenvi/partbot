@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container py-4">
+    <!-- Page Title -->
+    <div class="text-center mb-4">
+        <h1 class="fw-bold">Product Catalog</h1>
+        <p class="text-muted">Browse our collection of amazing products</p>
+    </div>
+
+    <!-- Product Cards -->
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-md-4">
+            <div class="card">
+                <div id="carouselProduct{{ loop.index }}" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for image in product.images.split(',') %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <img src="{{ url_for('static', filename='product_images/' + image) }}" class="d-block w-100" alt="Product Image">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselProduct{{ loop.index }}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselProduct{{ loop.index }}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-muted">{{ product.description }}</p>
+                    <p class="text-muted">Category: <strong>{{ product.category }}</strong></p>
+                    <p class="text-muted">Tags: 
+                        {% if product.tags %}
+                            {% for tag in product.tags.split(',') %}
+                                <span class="badge bg-secondary">{{ tag }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="badge bg-secondary">No tags</span>
+                        {% endif %}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">{{ product.price }} ₽</span>
+                        <a href="#" class="btn btn-primary btn-sm" name="add_to_cart">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if current_user.role == "admin" %}
+<!-- Floating Action Button -->
+<div class="position-fixed" style="bottom: 80px; right: 20px; z-index: 1030;">
+    <a href="#" class="btn btn-primary rounded-circle d-flex justify-content-center align-items-center"
+       style="width: 60px; height: 60px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" data-bs-toggle="modal" data-bs-target="#addProductModal" name="add_product_modal">
+        <i class="fa-solid fa-plus"></i>
+    </a>
+</div>
+{% endif %}
+
+<!-- Modal for Adding Product -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="productName" class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="productName" name="product_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="productDescription" name="product_description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productPrice" class="form-label">Price (₽)</label>
+                        <input type="number" class="form-control" id="productPrice" name="product_price" placeholder="Руб." required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="productCategory" class="form-label">Category</label>
+                        <select class="form-select" id="productCategory" name="product_category" required>
+                            <option value="Displays">Displays</option>
+                            <option value="Cables">Cables</option>
+                            <option value="Batteries">Batteries</option>
+                        </select>
+                    </div>
+
+                    <!-- Tags Section -->
+                    <div class="mb-3">
+                        <label for="productTags" class="form-label">Tags</label>
+                        <select class="form-select" id="productTags" name="product_tags" multiple aria-label="Select tags">
+                            <option value="Gadget">New</option>
+                            <option value="Tech">Refurbished</option>
+                            <option value="Electronics">Removed</option>
+                        </select>
+                        <small class="text-muted">Hold 'Ctrl' to select multiple tags.</small>
+                    </div>
+
+                    <!-- Multiple Image Upload -->
+                    <div class="mb-3">
+                        <label for="productPhotos" class="form-label">Photos</label>
+                        <input type="file" class="form-control" id="productPhotos" name="product_photos" multiple>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="productAvailability" class="form-label">Availability</label>
+                        <select class="form-select" id="productAvailability" name="product_availability" required>
+                            <option value="in_stock">In Stock</option>
+                            <option value="out_of_stock">Out of Stock</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="productDiscount" class="form-label">Discount (%)</label>
+                        <input type="number" class="form-control" id="productDiscount" name="product_discount" min="0" max="100" required>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+{% endblock %}

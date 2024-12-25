@@ -31,6 +31,26 @@ class JSONService:
         async with aiofiles.open(self.data_file_path, 'w') as f:
             await f.write(json.dumps(self.data, indent=4))
 
+    async def save_plugin_data(self, module_file, plugin_data):
+        """Сохраняет информацию о плагине в базу данных"""
+        if self.data is None:
+            await self.init()  # Если данные еще не инициализированы, инициализируем их
+
+        if 'plugins' not in self.data:
+            self.data['plugins'] = []
+
+        # Проверка на существование плагина с таким же именем
+        existing_plugin = await self.find_one('plugins', {'name': module_file})
+        if existing_plugin:
+            # Обновляем существующий плагин
+            await self.update('plugins', existing_plugin['id'], plugin_data)
+        else:
+            # Добавляем новый плагин
+            await self.create('plugins', {'name': module_file, **plugin_data})
+
+        await self.save_data()
+
+
     async def create(self, section, record):
         """Асинхронное создание записи в указанном разделе JSON"""
         if section not in self.data:
@@ -94,6 +114,7 @@ class JSONService:
     async def test_connection(self):
         """Асинхронное тестирование соединения с файлом JSON"""
         return os.path.exists(self.data_file_path) and os.access(self.data_file_path, os.R_OK | os.W_OK)
+
 
 
 # # Пример использования
