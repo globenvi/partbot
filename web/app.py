@@ -5,7 +5,7 @@ from models import User, db, Product
 import os
 
 # Set up webhook settings
-WEBHOOK_PORT =8080
+WEBHOOK_PORT =5000
 WEBHOOK_LISTEN = "0.0.0.0"
 
 app = Flask(__name__)
