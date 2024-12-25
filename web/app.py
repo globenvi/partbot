@@ -4,8 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import User, db, Product
 import os
 
-WEBHOOK_HOST = "31.31.207.202"
-WEBHOOK_PORT =8080
+# WEBHOOK_HOST = "31.31.207.202"
+WEBHOOK_PORT =80
 WEBHOOK_LISTEN = "0.0.0.0"
 
 # context = ('crt.crt', 'key.key')
