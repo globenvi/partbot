@@ -12,18 +12,19 @@ STATIC_DIR="$APP_DIR/static"
 SOCK_FILE="$APP_DIR/flask_app.sock"
 EMAIL="admin@$DOMAIN"
 CERT_PATH="/etc/letsencrypt/live/$DOMAIN"
-AVAILABLE_PORT=""
 
 # Проверка прав root
 if [[ $EUID -ne 0 ]]; then
-   echo "Этот скрипт должен быть запущен с правами root" 
-   exit 1
+    echo "Этот скрипт должен быть запущен с правами root"
+    exit 1
 fi
 
 # Обновление системы
+echo "Обновляем систему..."
 apt update && apt upgrade -y
 
-# Установка зависимостей, если их нет
+# Установка зависимостей
+echo "Устанавливаем зависимости..."
 dependencies=(nginx certbot python3-certbot-nginx python3 python3-venv python3-pip curl)
 for package in "${dependencies[@]}"; do
     if ! dpkg -l | grep -qw "$package"; then
@@ -34,32 +35,11 @@ for package in "${dependencies[@]}"; do
     fi
 done
 
-# Проверка портов 80 и 443
-for port in 80 443; do
-    if ! ss -tuln | grep -q ":$port"; then
-        echo "Порт $port свободен."
-        AVAILABLE_PORT=$port
-        break
-    else
-        echo "Порт $port занят."
-    fi
-done
-
-# Если порты 80 и 443 заняты, используем порт 8080
-if [[ -z "$AVAILABLE_PORT" ]]; then
-    echo "Порты 80 и 443 заняты, переключаемся на порт 8080."
-    AVAILABLE_PORT=8080
-fi
-
-# Проверка доступности домена
-if ! curl -s --head "http://$DOMAIN" | grep "200 OK"; then
-    echo "Домен $DOMAIN недоступен. Проверьте настройки DNS и правила брандмауэра."
-    exit 1
-fi
-
-# Создание конфигурационного файла Nginx
+# Создание конфигурации Nginx
+echo "Создаем конфигурацию Nginx для $DOMAIN..."
 cat > "$NGINX_CONFIG" <<EOF
 server {
+    listen 80;
     server_name $DOMAIN www.$DOMAIN;
 
     location / {
@@ -73,17 +53,21 @@ server {
     location /static/ {
         alias $STATIC_DIR/;
     }
-
-    listen $AVAILABLE_PORT;
 }
 EOF
 
-# Включение сайта в Nginx и перезапуск
+# Активируем конфигурацию
 ln -sf "$NGINX_CONFIG" "$NGINX_LINK"
-nginx -t || {
-    echo "Тест конфигурации Nginx завершился ошибкой. Исправьте ошибки и перезапустите скрипт."
+
+# Проверка конфигурации Nginx
+echo "Проверяем конфигурацию Nginx..."
+if ! nginx -t; then
+    echo "Ошибка в конфигурации Nginx. Проверьте конфигурацию: $NGINX_CONFIG"
     exit 1
-}
+fi
+
+# Перезапуск Nginx
+echo "Перезапускаем Nginx..."
 systemctl restart nginx || {
     echo "Не удалось перезапустить Nginx. Проверьте статус с помощью: systemctl status nginx"
     exit 1
@@ -93,16 +77,26 @@ systemctl restart nginx || {
 if [ -d "$CERT_PATH" ]; then
     echo "SSL-сертификаты для $DOMAIN уже существуют. Пропускаем Certbot."
 else
-    echo "SSL-сертификаты не найдены. Запрашиваю сертификаты у Let's Encrypt..."
+    echo "Запрашиваем SSL-сертификаты у Let's Encrypt..."
     certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m $EMAIL || {
-        echo "Certbot завершился ошибкой. Возможные причины:"
-        echo "1. Настройки DNS: Убедитесь, что $DOMAIN указывает на IP вашего сервера."
-        echo "2. Брандмауэр: Откройте порты 80 и 443."
-        echo "3. Логи: /var/log/letsencrypt/letsencrypt.log"
+        echo "Certbot завершился ошибкой. Проверьте логи: /var/log/letsencrypt/letsencrypt.log"
         exit 1
     }
 fi
 
+# Установка и запуск Flask-приложения (если нужно)
+if [[ -f "$APP_DIR/app.py" ]]; then
+    echo "Настраиваем и запускаем Flask-приложение..."
+    cd "$APP_DIR"
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    gunicorn --bind unix:"$SOCK_FILE" -m 007 app:app --daemon
+    echo "Flask-приложение запущено и работает через Gunicorn."
+else
+    echo "Flask-приложение не найдено в $APP_DIR. Пропускаем настройку приложения."
+fi
+
 # Финальное сообщение
-echo "Nginx настроен для $DOMAIN с SSL."
-echo "Если возникли проблемы, проверьте: /var/log/nginx/error.log и /var/log/letsencrypt/letsencrypt.log"
+echo "Настройка завершена! Домен $DOMAIN настроен с поддержкой SSL."
+echo "Если возникли проблемы, проверьте логи: /var/log/nginx/error.log и /var/log/letsencrypt/letsencrypt.log"
