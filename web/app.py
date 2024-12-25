@@ -64,7 +64,6 @@ def index_page():
         flash("Product added successfully!", category="success")
         return redirect(url_for('index_page'))
 
-    # Retrieve all products from the database to display
     products = Product.query.all()
     return render_template('index.html', user=current_user, products=products)
 
